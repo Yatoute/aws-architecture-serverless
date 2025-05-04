@@ -21,7 +21,8 @@ class ServerlessStack(TerraformStack):
         
         bucket = S3Bucket(
             self, "bucket",
-            bucket_prefix=""
+            bucket_prefix= "postagram-bucket",
+            force_destroy= True
         )
 
         # NE PAS TOUCHER !!!!
@@ -37,54 +38,54 @@ class ServerlessStack(TerraformStack):
 
         dynamo_table = DynamodbTable(
             self, "DynamodDB-table",
-            name= "",
-            hash_key="",
-            range_key="",
+            name= "posts-table",
+            hash_key="user",
+            range_key="id",
             attribute=[
-                DynamodbTableAttribute(name="",type="S" ),
-                DynamodbTableAttribute(name="",type="S" ),
+                DynamodbTableAttribute(name="user",type="S" ),
+                DynamodbTableAttribute(name="id",type="S" ),
             ],
             billing_mode="PROVISIONED",
             read_capacity=5,
             write_capacity=5
         )
 
-        code = TerraformAsset()
+        # code = TerraformAsset()
 
-        lambda_function = LambdaFunction(
-            self, "lambda",
-            function_name="",
-            runtime="python3.10",
-            memory_size=128,
-            timeout=60,
-            role=f"",
-            filename= code.path,
-            handler="",
-            environment={"variables":{}}
-        )
+        # lambda_function = LambdaFunction(
+        #     self, "lambda",
+        #     function_name="",
+        #     runtime="python3.10",
+        #     memory_size=128,
+        #     timeout=60,
+        #     role=f"",
+        #     filename= code.path,
+        #     handler="",
+        #     environment={"variables":{}}
+        # )
 
-        # NE PAS TOUCHER !!!!
-        permission = LambdaPermission(
-            self, "lambda_permission",
-            action="lambda:InvokeFunction",
-            statement_id="AllowExecutionFromS3Bucket",
-            function_name=lambda_function.arn,
-            principal="s3.amazonaws.com",
-            source_arn=bucket.arn,
-            source_account=account_id,
-            depends_on=[lambda_function, bucket]
-        )
+        # # NE PAS TOUCHER !!!!
+        # permission = LambdaPermission(
+        #     self, "lambda_permission",
+        #     action="lambda:InvokeFunction",
+        #     statement_id="AllowExecutionFromS3Bucket",
+        #     function_name=lambda_function.arn,
+        #     principal="s3.amazonaws.com",
+        #     source_arn=bucket.arn,
+        #     source_account=account_id,
+        #     depends_on=[lambda_function, bucket]
+        # )
 
-        # NE PAS TOUCHER !!!!
-        notification = S3BucketNotification(
-            self, "notification",
-            lambda_function=[S3BucketNotificationLambdaFunction(
-                lambda_function_arn=lambda_function.arn,
-                events=["s3:ObjectCreated:*"]
-            )],
-            bucket=bucket.id,
-            depends_on=[permission]
-        )
+        # # NE PAS TOUCHER !!!!
+        # notification = S3BucketNotification(
+        #     self, "notification",
+        #     lambda_function=[S3BucketNotificationLambdaFunction(
+        #         lambda_function_arn=lambda_function.arn,
+        #         events=["s3:ObjectCreated:*"]
+        #     )],
+        #     bucket=bucket.id,
+        #     depends_on=[permission]
+        # )
 
 
 
