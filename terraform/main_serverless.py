@@ -38,7 +38,7 @@ class ServerlessStack(TerraformStack):
 
         dynamo_table = DynamodbTable(
             self, "DynamodDB-table",
-            name= "posts-table",
+            name= "postagram",
             hash_key="user",
             range_key="id",
             attribute=[
