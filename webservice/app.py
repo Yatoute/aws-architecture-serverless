@@ -4,6 +4,7 @@
 ##                                                                                             ##
 ## 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 ##
 import boto3
+from boto3.dynamodb.conditions import Key
 from botocore.config import Config
 import os
 import uuid
@@ -69,7 +70,20 @@ async def post_a_post(post: Post, authorization: str | None = Header(default=Non
     logger.info(f"title : {post.title}")
     logger.info(f"body : {post.body}")
     logger.info(f"user : {authorization}")
-
+    
+    post_id = f'{uuid.uuid4()}'
+    
+    res = table.put_item(
+        Item = {
+            "id": f"POST#{post_id}",
+            "user" : f"POST#{authorization}",
+            "title" : post.title,
+            "body" : post.body,
+           
+            
+        }
+    )
+    
 
     # Doit retourner le résultat de la requête la table dynamodb
     return res
@@ -83,8 +97,15 @@ async def get_all_posts(user: Union[str, None] = None):
     """
     if user :
         logger.info(f"Récupération des postes de : {user}")
+        posts = table.query(
+            Select = 'ALL_ATTRIBUTES',
+            KeyConditionExpression= Key("user").eq(f"USER#{user}")
+        )
     else :
         logger.info("Récupération de tous les postes")
+        posts = table.scan(
+            Select = 'ALL_ATTRIBUTES'
+        )
      # Doit retourner une liste de posts
     return res[""]
 
