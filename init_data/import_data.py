@@ -15,9 +15,8 @@ for (dirpath, dirnames, filenames) in os.walk("s3"):
     if filenames:
         for filename in filenames:
             with open(f"{dirpath}/{filename}", 'rb') as file:
-                s3.Object(bucket, f"{'/'.join(dirpath.split('/')[1:])}/{filename}").put(Body=file)
-            
-
+                s3.Object(bucket, f"{'/'.join(dirpath.split(os.path.sep)[1:])}/{filename}").put(Body=file)
+          
 
 # Batch upload
 # Get the service resource.
