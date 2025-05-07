@@ -76,7 +76,7 @@ async def post_a_post(post: Post, authorization: str | None = Header(default=Non
     res = table.put_item(
         Item = {
             "id": f"POST#{post_id}",
-            "user" : f"POST#{authorization}",
+            "user" : f"USER#{authorization}",
             "title" : post.title,
             "body" : post.body,
            
@@ -86,7 +86,7 @@ async def post_a_post(post: Post, authorization: str | None = Header(default=Non
     
 
     # Doit retourner le résultat de la requête la table dynamodb
-    return res
+    return JSONResponse(content=res, status_code=res["ResponseMetadata"]["HTTPStatusCode"])
 
 @app.get("/posts")
 async def get_all_posts(user: Union[str, None] = None):
@@ -107,7 +107,7 @@ async def get_all_posts(user: Union[str, None] = None):
             Select = 'ALL_ATTRIBUTES'
         )
      # Doit retourner une liste de posts
-    return res[""]
+    return JSONResponse(content=posts["Items"], status_code=posts["ResponseMetadata"]["HTTPStatusCode"])
 
     
 @app.delete("/posts/{post_id}")
@@ -116,13 +116,24 @@ async def delete_post(post_id: str, authorization: str | None = Header(default=N
     logger.info(f"post id : {post_id}")
     logger.info(f"user: {authorization}")
     # Récupération des infos du poste
-
+    post =  table.query(
+            Select = 'ALL_ATTRIBUTES',
+            KeyConditionExpression= Key("user").eq(f"USER#{authorization}") & Key("id").eq(f"POST#{post_id}")
+        )
     # S'il y a une image on la supprime de S3
+    image = post["Items"][0].get("image", None)
+    if image:
+        s3_client.delete_object(bucket= bucket, Key=image)
 
     # Suppression de la ligne dans la base dynamodb
-
+    res = table.delete_item(
+        Key = {
+            "user": f"USER#{authorization}",
+            "id": f"POST#{post_id}"
+        }
+    )
     # Retourne le résultat de la requête de suppression
-    return item
+    return JSONResponse(content=res, status_code=res["ResponseMetadata"]["HTTPStatusCode"])
 
 
 
