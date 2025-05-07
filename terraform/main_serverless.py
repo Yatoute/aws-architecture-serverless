@@ -12,6 +12,7 @@ from cdktf_cdktf_provider_aws.s3_bucket_cors_configuration import S3BucketCorsCo
 from cdktf_cdktf_provider_aws.s3_bucket_notification import S3BucketNotification, S3BucketNotificationLambdaFunction
 from cdktf_cdktf_provider_aws.dynamodb_table import DynamodbTable, DynamodbTableAttribute
 
+
 class ServerlessStack(TerraformStack):
     def __init__(self, scope: Construct, id: str):
         super().__init__(scope, id)
@@ -37,7 +38,7 @@ class ServerlessStack(TerraformStack):
             )
 
         dynamo_table = DynamodbTable(
-            self, "DynamodDB-table",
+            self, "DynamodDB_table",
             name= "postagram",
             hash_key="user",
             range_key="id",
@@ -50,19 +51,25 @@ class ServerlessStack(TerraformStack):
             write_capacity=5
         )
 
-        # code = TerraformAsset()
+        code = TerraformAsset(self, "lambda_function",
+            path= "./lambda", type= AssetType.ARCHIVE
+        )
 
-        # lambda_function = LambdaFunction(
-        #     self, "lambda",
-        #     function_name="",
-        #     runtime="python3.10",
-        #     memory_size=128,
-        #     timeout=60,
-        #     role=f"",
-        #     filename= code.path,
-        #     handler="",
-        #     environment={"variables":{}}
-        # )
+        lambda_function = LambdaFunction(
+            self, "lambda",
+            function_name="image_labels_rekognition",
+            runtime="python3.10",
+            memory_size=128,
+            timeout=60,
+            role=f"arn:aws:iam::{account_id}:role/LabRole",
+            filename= code.path,
+            handler="lambda_function.lambda_handler",
+            environment={"variables":{
+           
+                "BUCKET": bucket.id,
+                "DYNAMO_TABLE": dynamo_table.id
+            }}
+        )
 
         # # NE PAS TOUCHER !!!!
         # permission = LambdaPermission(
