@@ -23,7 +23,8 @@ class ServerlessStack(TerraformStack):
         bucket = S3Bucket(
             self, "bucket",
             bucket_prefix= "postagram-bucket",
-            force_destroy= True
+            force_destroy= True,
+            versioning={"enabled": True}
         )
 
         # NE PAS TOUCHER !!!!
@@ -51,9 +52,8 @@ class ServerlessStack(TerraformStack):
             write_capacity=5
         )
 
-        code = TerraformAsset(self, "lambda_function",
-            path= "./lambda", type= AssetType.ARCHIVE
-        )
+        code = TerraformAsset(self, "lambda_code", path="./lambda", type=AssetType.ARCHIVE)
+
 
         lambda_function = LambdaFunction(
             self, "lambda",
@@ -71,28 +71,28 @@ class ServerlessStack(TerraformStack):
             }}
         )
 
-        # # NE PAS TOUCHER !!!!
-        # permission = LambdaPermission(
-        #     self, "lambda_permission",
-        #     action="lambda:InvokeFunction",
-        #     statement_id="AllowExecutionFromS3Bucket",
-        #     function_name=lambda_function.arn,
-        #     principal="s3.amazonaws.com",
-        #     source_arn=bucket.arn,
-        #     source_account=account_id,
-        #     depends_on=[lambda_function, bucket]
-        # )
+        # NE PAS TOUCHER !!!!
+        permission = LambdaPermission(
+            self, "lambda_permission",
+            action="lambda:InvokeFunction",
+            statement_id="AllowExecutionFromS3Bucket",
+            function_name=lambda_function.arn,
+            principal="s3.amazonaws.com",
+            source_arn=bucket.arn,
+            source_account=account_id,
+            depends_on=[lambda_function, bucket]
+        )
 
-        # # NE PAS TOUCHER !!!!
-        # notification = S3BucketNotification(
-        #     self, "notification",
-        #     lambda_function=[S3BucketNotificationLambdaFunction(
-        #         lambda_function_arn=lambda_function.arn,
-        #         events=["s3:ObjectCreated:*"]
-        #     )],
-        #     bucket=bucket.id,
-        #     depends_on=[permission]
-        # )
+        # NE PAS TOUCHER !!!!
+        notification = S3BucketNotification(
+            self, "notification",
+            lambda_function=[S3BucketNotificationLambdaFunction(
+                lambda_function_arn=lambda_function.arn,
+                events=["s3:ObjectCreated:*"]
+            )],
+            bucket=bucket.id,
+            depends_on=[permission]
+        )
 
 
 

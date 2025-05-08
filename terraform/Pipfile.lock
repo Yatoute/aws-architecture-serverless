@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2c5d322a2445c0912ded006a87dc8235d058bb360919cab40445eb466a073e90"
+            "sha256": "2913f8650dc7dabf664ac04d23b3c1f1f7b6cfade4fbc7baf3aa9539189895d2"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -51,12 +51,12 @@
         },
         "cdktf": {
             "hashes": [
-                "sha256:673ac0c9cd9e10aee5dae95a668e6969793b6d4297d1eb67817c25b31494614b",
-                "sha256:9280beb6b33a322d857749104364482e82ae260e6e9131d33f1611ef72e7fe56"
+                "sha256:98f607dd50506c1c85bc8b47c6b8f4b5607a9d87ad2f99f6819709a29abce101",
+                "sha256:d25ed9d7a68d482a314da0096fcf67cc55765488777b75be69f359ed99c956d3"
             ],
             "index": "pypi",
             "markers": "python_version ~= '3.8'",
-            "version": "==0.20.12"
+            "version": "==0.20.11"
         },
         "cdktf-cdktf-provider-aws": {
             "hashes": [
@@ -110,11 +110,11 @@
         },
         "jsii": {
             "hashes": [
-                "sha256:3084e31173e73d2eefee678c8ee31aa49428830509043057a421a4c0dde94434",
-                "sha256:db523ab9b6575c84d6ed8779cdbdc739abd48a7cb0723b66beb84c1a9dc31c7c"
+                "sha256:6510c223074d9b206fd0570849a791e4d9ecfff7ffe68428de73870cea9f55a1",
+                "sha256:6b7d19f361c2565b76828ecbe8cbed8b8d6028a82aa98a46b206a4ee5083157e"
             ],
             "markers": "python_version ~= '3.9'",
-            "version": "==1.111.0"
+            "version": "==1.112.0"
         },
         "packaging": {
             "hashes": [
