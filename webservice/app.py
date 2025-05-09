@@ -131,10 +131,10 @@ async def delete_post(post_id: str, authorization: str | None = Header(default=N
     logger.info(f"user: {authorization}")
     # Récupération des infos du poste
     post =  table.query(
-            Select = 'ALL_ATTRIBUTES',
-            KeyConditionExpression= Key("user").eq(f"USER#{authorization}") & Key("id").eq(f"POST#{post_id}")
-        )
-    
+        Select = 'ALL_ATTRIBUTES',
+        KeyConditionExpression= Key("user").eq(f"USER#{authorization}") & Key("id").eq(f"POST#{post_id}")
+    )
+
     if len(post["Items"])==0:
         res = "Ce post n'existe peut être pas ou vous n'est pas autorisé à le supprimer."
         return JSONResponse(content=res)
