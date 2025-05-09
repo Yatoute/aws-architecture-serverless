@@ -40,7 +40,8 @@ echo 'BUCKET={bucket}' >> .env
 echo 'DYNAMO_TABLE={dynamo_table}' >> .env
 pip3 install -r requirements.txt
 venv/bin/python app.py
-echo "userdata-end""".encode("ascii")).decode("ascii")
+echo "userdata-end"
+""".encode("ascii")).decode("ascii")
 
 
 class ServerStack(TerraformStack):
@@ -52,10 +53,10 @@ class ServerStack(TerraformStack):
         
         launch_template = LaunchTemplate(
             self, "launch template",
-            image_id= "ami-0f88e80871fd81e91",
+            image_id= "ami-0d59d17fb3b322d0b",
             instance_type= "t2.micro",
             vpc_security_group_ids = [security_group.id],
-            key_name="vockey",
+            key_name="ensai-key",
             user_data= user_data,
             tags={"Name":"TP noté"},
             iam_instance_profile={"arn": f"arn:aws:iam::{account_id}:instance-profile/LabInstanceProfile"}
