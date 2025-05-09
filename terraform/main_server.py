@@ -32,12 +32,14 @@ echo "userdata-start"
 apt update
 apt install -y python3-pip python3.12-venv
 git clone {git_repo} projet
-cd projet/webservice
-python3 -m venv venv
-source venv/bin/activate
+cd projet
 rm .env
 echo 'BUCKET={bucket}' >> .env
 echo 'DYNAMO_TABLE={dynamo_table}' >> .env
+source .env
+cd webservice
+python3 -m venv venv
+source venv/bin/activate
 pip3 install -r requirements.txt
 venv/bin/python app.py
 echo "userdata-end"
@@ -56,7 +58,7 @@ class ServerStack(TerraformStack):
             image_id= "ami-0d59d17fb3b322d0b",
             instance_type= "t2.micro",
             vpc_security_group_ids = [security_group.id],
-            key_name="ensai-key",
+            key_name="vockey",
             user_data= user_data,
             tags={"Name":"TP noté"},
             iam_instance_profile={"arn": f"arn:aws:iam::{account_id}:instance-profile/LabInstanceProfile"}
