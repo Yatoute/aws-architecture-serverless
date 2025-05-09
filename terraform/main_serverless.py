@@ -94,6 +94,17 @@ class ServerlessStack(TerraformStack):
             depends_on=[permission]
         )
 
+        # Output pour le nom du bucket S3
+        TerraformOutput(
+            self, "bucket_name",
+            value=bucket.bucket
+        )
+
+        # Output pour le nom de la table DynamoDB
+        TerraformOutput(
+            self, "dynamodb_table_name",
+            value=dynamo_table.name
+        )
 
 
 app = App()
