@@ -134,10 +134,15 @@ async def delete_post(post_id: str, authorization: str | None = Header(default=N
             Select = 'ALL_ATTRIBUTES',
             KeyConditionExpression= Key("user").eq(f"USER#{authorization}") & Key("id").eq(f"POST#{post_id}")
         )
+    
+    if len(post["Items"])==0:
+        res = "Ce post n'existe peut être pas ou vous n'est pas autorisé à le supprimer."
+        return JSONResponse(content=res)
+    
     # S'il y a une image on la supprime de S3
     image = post["Items"][0].get("image", None)
     if image:
-        s3_client.delete_object(bucket= bucket, Key=image)
+        s3_client.delete_object(Bucket= bucket, Key=image)
 
     # Suppression de la ligne dans la base dynamodb
     res = table.delete_item(
@@ -146,6 +151,7 @@ async def delete_post(post_id: str, authorization: str | None = Header(default=N
             "id": f"POST#{post_id}"
         }
     )
+   
     # Retourne le résultat de la requête de suppression
     return JSONResponse(content=res, status_code=res["ResponseMetadata"]["HTTPStatusCode"])
 
