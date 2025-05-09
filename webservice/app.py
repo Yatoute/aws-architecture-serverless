@@ -106,8 +106,20 @@ async def get_all_posts(user: Union[str, None] = None):
         posts = table.scan(
             Select = 'ALL_ATTRIBUTES'
         )
+    
+    items = posts["Items"]
+
+    for item in items:
+        item["image"] = s3_client.generate_presigned_url(
+            "get_object", 
+            Params={
+                "Bucket": bucket,
+                "Key": item["image"], 
+            },
+        )
+
      # Doit retourner une liste de posts
-    return JSONResponse(content=posts["Items"], status_code=posts["ResponseMetadata"]["HTTPStatusCode"])
+    return JSONResponse(content=items, status_code=posts["ResponseMetadata"]["HTTPStatusCode"])
 
     
 @app.delete("/posts/{post_id}")

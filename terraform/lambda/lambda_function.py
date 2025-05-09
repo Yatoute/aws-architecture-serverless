@@ -22,9 +22,8 @@ def lambda_handler(event, context):
     # Récupération du nom du bucket
     bucket = event["Records"][0]["s3"]["bucket"]["name"]
     
-    # Récupération du nom et l'url complet de l'objet
+    # Récupération du nom de l'objet
     key = unquote_plus(event["Records"][0]["s3"]["object"]["key"])
-    image_url = f'https://{bucket}.s3.{region}.amazonaws.com/{key}'
     
     # extration de l'utilisateur et de l'id de la tâche
     user, task_id = key.split('/')[:2]
@@ -47,8 +46,8 @@ def lambda_handler(event, context):
     logger.info(f"Labels data : {label_data}")
     
     # Récupération des résultats des labels
-    image_labels = [label["Name"] for label in label_data["Labels"]]
-    logger.info(f"Labels detected : {image_labels}")
+    labels = [label["Name"] for label in label_data["Labels"]]
+    logger.info(f"Labels detected : {labels}")
 
     # Mise à jour de la table dynamodb
     table.update_item(
@@ -57,10 +56,10 @@ def lambda_handler(event, context):
             "id": task_id
             
         },
-        UpdateExpression = "SET image = :img_url, label = :img_labels",
+        UpdateExpression = "SET image = :img_key, label = :img_labels",
         ExpressionAttributeValues = {
-            ":img_url": image_url, 
-            ":img_labels": image_labels
+            ":img_key": key, 
+            ":img_labels": labels
         }
     )
     
