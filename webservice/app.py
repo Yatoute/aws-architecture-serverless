@@ -110,13 +110,15 @@ async def get_all_posts(user: Union[str, None] = None):
     items = posts["Items"]
 
     for item in items:
-        item["image"] = s3_client.generate_presigned_url(
-            "get_object", 
-            Params={
-                "Bucket": bucket,
-                "Key": item["image"], 
-            },
-        )
+        image = item.get("image", None)
+        if image :
+            item["image"] = s3_client.generate_presigned_url(
+                "get_object", 
+                Params={
+                    "Bucket": bucket,
+                    "Key": image, 
+                },
+            )
 
      # Doit retourner une liste de posts
     return JSONResponse(content=items, status_code=posts["ResponseMetadata"]["HTTPStatusCode"])
