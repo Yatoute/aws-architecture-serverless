@@ -51,7 +51,7 @@ def get_post_by_id(user:str, post_id:str):
             Select = 'ALL_ATTRIBUTES',
             KeyConditionExpression= Key("user").eq(f"USER#{user}") & Key("id").eq(f"POST#{post_id}")
         )
-   except ClientError as e:
+    except ClientError as e:
         logging.error(e)
         return None
     
