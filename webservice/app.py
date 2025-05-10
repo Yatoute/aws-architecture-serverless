@@ -22,7 +22,7 @@ import uvicorn
 
 from getSignedUrl import getSignedUrl
 from posts_service import (
-    get_user_posts, get_all_posts, create_presigned_url,
+    get_user_posts, get_posts, create_presigned_url,
     get_post_by_id
 )
 load_dotenv()
@@ -112,7 +112,7 @@ async def get_all_posts(user: Union[str, None] = None):
     if user :
         posts = get_user_posts(user)
     else :
-        posts = get_all_posts()
+        posts = get_posts()
     
     items = posts["Items"]
 
@@ -120,7 +120,7 @@ async def get_all_posts(user: Union[str, None] = None):
     for item in items:
         image = item.get("image", None)
         if image :
-            item["image"] = create_presiged_url(
+            item["image"] = create_presigned_url(
                 bucket_name=bucket, 
                 object_name=image
             )
@@ -175,7 +175,7 @@ async def get_signed_url_put(filename: str,filetype: str, postId: str,authorizat
     return getSignedUrl(filename, filetype, postId, authorization)
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8080, log_level="debug")
+    uvicorn.run(app, host="127.0.0.1", port=8081, log_level="debug")
 
 ## ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ##
 ##                                                                                                ##

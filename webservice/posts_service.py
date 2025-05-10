@@ -5,7 +5,7 @@ from botocore.exceptions import ClientError
 import os
 
 import logging
-
+logger = logging.getLogger("uvicorn")
 my_config = Config(
     region_name='us-east-1',
     signature_version='v4',
@@ -30,7 +30,7 @@ def get_user_posts(user: str):
         return None
     return posts
     
-def get_all_posts():
+def get_posts():
     """Récupération de tous les postes"""
     
     logger.info("Récupération de tous les postes")
