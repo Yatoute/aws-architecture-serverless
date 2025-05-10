@@ -6,6 +6,7 @@
 import boto3
 from boto3.dynamodb.conditions import Key
 from botocore.config import Config
+from botocore.exceptions import ClientError
 import os
 import uuid
 from dotenv import load_dotenv
@@ -13,13 +14,17 @@ from typing import Union
 import logging
 from fastapi import FastAPI, Request, status, Header
 from fastapi.exceptions import RequestValidationError
+from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
 
 from getSignedUrl import getSignedUrl
-
+from posts_service import (
+    get_user_posts, get_all_posts, create_presigned_url,
+    get_post_by_id
+)
 load_dotenv()
 
 app = FastAPI()
@@ -73,18 +78,27 @@ async def post_a_post(post: Post, authorization: str | None = Header(default=Non
     
     post_id = f'{uuid.uuid4()}'
     
-    res = table.put_item(
-        Item = {
-            "id": f"POST#{post_id}",
-            "user" : f"USER#{authorization}",
-            "title" : post.title,
-            "body" : post.body,
-           
-            
-        }
-    )
-    
-
+    try :
+        res = table.put_item(
+            Item = {
+                "id": f"POST#{post_id}",
+                "user" : f"USER#{authorization}",
+                "title" : post.title,
+                "body" : post.body
+            }
+        )  
+    except (ValueError, TypeError) as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Erreur de validation des données : {str(e)}"
+        )
+       
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Erreur inattendue : {str(e)}"
+        )
+        
     # Doit retourner le résultat de la requête la table dynamodb
     return JSONResponse(content=res, status_code=res["ResponseMetadata"]["HTTPStatusCode"])
 
@@ -94,32 +108,23 @@ async def get_all_posts(user: Union[str, None] = None):
     Récupère tout les postes. 
     - Si un user est présent dans le requête, récupère uniquement les siens
     - Si aucun user n'est présent, récupère TOUS les postes de la table !!
-    """
+    """  
     if user :
-        logger.info(f"Récupération des postes de : {user}")
-        posts = table.query(
-            Select = 'ALL_ATTRIBUTES',
-            KeyConditionExpression= Key("user").eq(f"USER#{user}")
-        )
+        posts = get_user_posts(user)
     else :
-        logger.info("Récupération de tous les postes")
-        posts = table.scan(
-            Select = 'ALL_ATTRIBUTES'
-        )
+        posts = get_all_posts()
     
     items = posts["Items"]
 
+    # Créer des urls signés pour les images jointes aux posts
     for item in items:
         image = item.get("image", None)
         if image :
-            item["image"] = s3_client.generate_presigned_url(
-                "get_object", 
-                Params={
-                    "Bucket": bucket,
-                    "Key": image, 
-                },
+            item["image"] = create_presiged_url(
+                bucket_name=bucket, 
+                object_name=image
             )
-
+           
      # Doit retourner une liste de posts
     return JSONResponse(content=items, status_code=posts["ResponseMetadata"]["HTTPStatusCode"])
 
@@ -130,27 +135,30 @@ async def delete_post(post_id: str, authorization: str | None = Header(default=N
     logger.info(f"post id : {post_id}")
     logger.info(f"user: {authorization}")
     # Récupération des infos du poste
-    post =  table.query(
-        Select = 'ALL_ATTRIBUTES',
-        KeyConditionExpression= Key("user").eq(f"USER#{authorization}") & Key("id").eq(f"POST#{post_id}")
-    )
-
+    post = get_post_by_id(authorization, post_id)
+        
     if len(post["Items"])==0:
         res = "Ce post n'existe peut être pas ou vous n'est pas autorisé à le supprimer."
         return JSONResponse(content=res)
     
-    # S'il y a une image on la supprime de S3
     image = post["Items"][0].get("image", None)
-    if image:
-        s3_client.delete_object(Bucket= bucket, Key=image)
-
-    # Suppression de la ligne dans la base dynamodb
-    res = table.delete_item(
-        Key = {
-            "user": f"USER#{authorization}",
-            "id": f"POST#{post_id}"
-        }
-    )
+    try:
+        # S'il y a une image on la supprime de S3
+        if image:
+            s3_client.delete_object(Bucket= bucket, Key=image)
+            
+        # Suppression de la ligne dans la base dynamodb
+            res = table.delete_item(
+                Key = {
+                    "user": f"USER#{authorization}",
+                    "id": f"POST#{post_id}"
+                }
+            )
+    except ClientError as e:
+        raise HTTPException(
+            status_code= e.response['ResponseMetadata']['HTTPStatusCode'],
+            detail= e.response['Error']['Message']
+        )
    
     # Retourne le résultat de la requête de suppression
     return JSONResponse(content=res, status_code=res["ResponseMetadata"]["HTTPStatusCode"])

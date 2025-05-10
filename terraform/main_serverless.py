@@ -18,8 +18,10 @@ class ServerlessStack(TerraformStack):
         super().__init__(scope, id)
         AwsProvider(self, "AWS", region="us-east-1")
 
+        # Acount ID
         account_id = DataAwsCallerIdentity(self, "acount_id").account_id
         
+        # Bucket pour stocker les images
         bucket = S3Bucket(
             self, "bucket",
             bucket_prefix= "postagram-bucket",
@@ -37,7 +39,8 @@ class ServerlessStack(TerraformStack):
                 allowed_origins = ["*"]
             )]
             )
-
+        
+        # Table dynamodb pour stocker les posts
         dynamo_table = DynamodbTable(
             self, "DynamodDB_table",
             name= "postagram",
@@ -52,9 +55,10 @@ class ServerlessStack(TerraformStack):
             write_capacity=5
         )
 
+        # Un Asset pour l'importation du code source de la lambda
         code = TerraformAsset(self, "lambda_code", path="./lambda", type=AssetType.ARCHIVE)
 
-
+        # Ressource lambda
         lambda_function = LambdaFunction(
             self, "lambda",
             function_name="image_labels_rekognition",
