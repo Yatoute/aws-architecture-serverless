@@ -24,7 +24,7 @@ bucket= os.getenv("BUCKET")
 dynamo_table= os.getenv("DYNAMO_TABLE")
 
 # Mettez ici l'url de votre dépôt github. Votre dépôt doit être public !!!
-git_repo= os.getenv("GITHUB_REPOSIT")
+git_repo= "https://github.com/Richard-GOZAN/postagram_ensai.git"
 
 # Le user data pour lancer votre websservice. Il fonctionne tel quel
 user_data= base64.b64encode(f"""#!/bin/bash
@@ -32,19 +32,16 @@ echo "userdata-start"
 apt update
 apt install -y python3-pip python3.12-venv
 git clone {git_repo} projet
-cd projet
+cd projet/webservice
+python3 -m venv venv
+source venv/bin/activate
 rm .env
 echo 'BUCKET={bucket}' >> .env
 echo 'DYNAMO_TABLE={dynamo_table}' >> .env
-source .env
-cd webservice
-python3 -m venv venv
-source venv/bin/activate
 pip3 install -r requirements.txt
 venv/bin/python app.py
 echo "userdata-end"
 """.encode("ascii")).decode("ascii")
-
 
 class ServerStack(TerraformStack):
     
