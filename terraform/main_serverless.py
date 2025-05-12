@@ -29,7 +29,7 @@ class ServerlessStack(TerraformStack):
             versioning={"enabled": True}
         )
 
-        # NE PAS TOUCHER !!!!
+        # Permerission pour le bucket
         S3BucketCorsConfiguration(
             self, "cors",
             bucket=bucket.id,
@@ -75,7 +75,7 @@ class ServerlessStack(TerraformStack):
             }}
         )
 
-        # NE PAS TOUCHER !!!!
+        # Permissions pour la lambda
         permission = LambdaPermission(
             self, "lambda_permission",
             action="lambda:InvokeFunction",

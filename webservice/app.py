@@ -1,8 +1,3 @@
-#################################################################################################
-##                                                                                             ##
-##                                 NE PAS TOUCHER CETTE PARTIE                                 ##
-##                                                                                             ##
-## 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 ##
 import boto3
 from boto3.dynamodb.conditions import Key
 from botocore.config import Config
@@ -60,12 +55,6 @@ table = dynamodb.Table(os.getenv("DYNAMO_TABLE"))
 s3_client = boto3.client('s3', config=boto3.session.Config(signature_version='s3v4'))
 bucket = os.getenv("BUCKET")
 
-## ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ##
-##                                                                                                ##
-####################################################################################################
-
-
-
 
 @app.post("/posts")
 async def post_a_post(post: Post, authorization: str | None = Header(default=None)):
@@ -99,7 +88,6 @@ async def post_a_post(post: Post, authorization: str | None = Header(default=Non
             detail=f"Erreur inattendue : {str(e)}"
         )
         
-    # Doit retourner le résultat de la requête la table dynamodb
     return JSONResponse(content=res, status_code=res["ResponseMetadata"]["HTTPStatusCode"])
 
 @app.get("/posts")
@@ -125,13 +113,12 @@ async def get_all_posts(user: Union[str, None] = None):
                 object_name=image
             )
            
-     # Doit retourner une liste de posts
     return JSONResponse(content=items, status_code=posts["ResponseMetadata"]["HTTPStatusCode"])
 
     
 @app.delete("/posts/{post_id}")
 async def delete_post(post_id: str, authorization: str | None = Header(default=None)):
-    # Doit retourner le résultat de la requête la table dynamodb
+
     logger.info(f"post id : {post_id}")
     logger.info(f"user: {authorization}")
     # Récupération des infos du poste
@@ -160,23 +147,11 @@ async def delete_post(post_id: str, authorization: str | None = Header(default=N
             detail= e.response['Error']['Message']
         )
    
-    # Retourne le résultat de la requête de suppression
     return JSONResponse(content=res, status_code=res["ResponseMetadata"]["HTTPStatusCode"])
 
-
-
-#################################################################################################
-##                                                                                             ##
-##                                 NE PAS TOUCHER CETTE PARTIE                                 ##
-##                                                                                             ##
-## 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 👇 ##
 @app.get("/signedUrlPut")
 async def get_signed_url_put(filename: str,filetype: str, postId: str,authorization: str | None = Header(default=None)):
     return getSignedUrl(filename, filetype, postId, authorization)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080, log_level="debug")
-
-## ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ☝️ ##
-##                                                                                                ##
-####################################################################################################

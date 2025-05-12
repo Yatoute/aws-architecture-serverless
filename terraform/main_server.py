@@ -15,18 +15,18 @@ from cdktf_cdktf_provider_aws.data_aws_caller_identity import DataAwsCallerIdent
 import os
 from dotenv import load_dotenv
 import base64
-load_dotenv("../webservice/.env")
+load_dotenv()
 
-# Mettez ici le nom du bucket S3 crée dans la partie serverless
+# Bucket S3
 bucket= os.getenv("BUCKET")
 
-# Mettez ici le nom de la table dynamoDB créée dans la partie serverless
+# la table dynamoDB créée dans la partie serverless
 dynamo_table= os.getenv("DYNAMO_TABLE")
 
-# Mettez ici l'url de votre dépôt github. Votre dépôt doit être public !!!
-git_repo= "https://github.com/Richard-GOZAN/postagram_ensai.git"
+# URL du depôt github
+git_repo= os.getenv("GIT_REPO")
 
-# Le user data pour lancer votre websservice. Il fonctionne tel quel
+# Le user data pour lancer votre websservice
 user_data= base64.b64encode(f"""#!/bin/bash
 echo "userdata-start"        
 apt update
