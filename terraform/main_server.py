@@ -15,7 +15,7 @@ from cdktf_cdktf_provider_aws.data_aws_caller_identity import DataAwsCallerIdent
 import os
 from dotenv import load_dotenv
 import base64
-load_dotenv()
+load_dotenv("../webservice/.env")
 
 # Mettez ici le nom du bucket S3 crée dans la partie serverless
 bucket= os.getenv("BUCKET")

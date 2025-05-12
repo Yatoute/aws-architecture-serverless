@@ -2,7 +2,7 @@ import boto3
 from botocore.config import Config
 import os
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv("../webservice/.env")
 from data import data
 
 bucket = os.getenv("BUCKET")
