@@ -1,7 +1,7 @@
 
 ---
 
-# 📸 Postagram — Projet final : Déployement d'une API REST 100% Serverless sur AWS
+# 📸 Postagram — Projet final : Conception et déployement d'une API REST 100% Serverless sur AWS
 
 Ce projet est réalisé dans le cadre de notre cours de cloud computing à l'ENSAI. Il consiste à développer la partie backend d’un réseau social de partage de photos, **Postagram**, en exploitant une architecture 100 % serverless et en déployant les ressources AWS avec Terraform.
 
